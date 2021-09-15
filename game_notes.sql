@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS jogador (
 
 CREATE TABLE IF NOT EXISTS raca (
     id int not null,
-	nome varchar(50) not null,
+    nome varchar(50) not null,
     descricao varchar(300),
     habilidades varchar(100) not null,
     primary key (id)
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS raca (
 
 CREATE TABLE IF NOT EXISTS classe (
     id int not null,
-	nome varchar(100) not null,
+    nome varchar(100) not null,
     descricao varchar(300),
     habilidades varchar(310) not null,
     primary key (id)
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS classe (
 
 CREATE TABLE IF NOT EXISTS item (
     id int not null,
-	nome varchar(100) not null,
+    nome varchar(100) not null,
     tipo varchar(10) not null,
     raridade varchar(10) not null,
     descricao varchar(200) not null,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS item (
 
 CREATE TABLE IF NOT EXISTS npc (
     id int not null,
-	nome varchar(100) not null,
+    nome varchar(100) not null,
     funcao varchar(50),
     localizacao varchar(100),
     primary key (id)
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS personagem (
         references jogador (id),
     foreign key (id_raca)
         references raca (id),
-	foreign key (id_classe)
+     foreign key (id_classe)
         references classe (id)
 );
 
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS itens_personagem (
     primary key (id_personagem, id_item),
     foreign key (id_personagem)
         references personagem (id),
-	foreign key (id_item)
+    foreign key (id_item)
         references item (id)
 );
 
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS quests_personagem (
     primary key (id_personagem, id_quest),
     foreign key (id_personagem)
         references personagem (id),
-	foreign key (id_quest)
+    foreign key (id_quest)
         references quest (id)
 );
 
@@ -105,21 +105,21 @@ CREATE TABLE IF NOT EXISTS transacao (
     id_personagem int not null,
     primary key (id),
     foreign key (id_personagem)
-		references personagem (id)
+	references personagem (id)
 );
 
 CREATE TABLE IF NOT EXISTS lojas (
     id int not null,
-	nome varchar(40),
+    nome varchar(40),
     tipo varchar(20),
     localizacao varchar(100),
     id_item int not null,
     id_transacao int not null,
     primary key (id),
     foreign key (id_item)
-		references item (id),
-	foreign key (id_transacao)
-		references transacao (id)
+	references item (id),
+    foreign key (id_transacao)
+	references transacao (id)
 );
 
 CREATE TABLE IF NOT EXISTS itens_transacao (
@@ -128,8 +128,8 @@ CREATE TABLE IF NOT EXISTS itens_transacao (
     quantidade int,
     primary key (id_item, id_transacao),
     foreign key (id_item)
-		references item (id),
-	foreign key (id_transacao)
-		references transacao (id)
+	references item (id),
+    foreign key (id_transacao)
+	references transacao (id)
 );
 
