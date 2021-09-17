@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS quests_personagem (
 
 CREATE TABLE IF NOT EXISTS transacao (
     id int not null,
-	valor_total double,
+    valor_total double,
     id_personagem int not null,
     primary key (id),
     foreign key (id_personagem)
