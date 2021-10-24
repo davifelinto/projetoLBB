@@ -16,7 +16,14 @@ select * from itens_transacao;
 
 -- Mostrar quais jogadores estão ativos e seus respectivos personagens
 
--- Mostrar personagens e os itens que ele possui?
+-- Mostrar personagens e os itens que ele possui
+SELECT personagem.nome, item.nome, item.preco,  item.raridade
+FROM personagem
+JOIN itens_personagem
+	ON personagem.id = itens_personagem.id_personagem
+JOIN item
+	ON item.id = itens_personagem.id_item
+ORDER BY personagem.nome;
 
 -- Mostrar o registro de vendas de uma loja
 
@@ -58,3 +65,21 @@ GROUP by classe.nome;
 SELECT nome, email
 FROM jogador
 WHERE id = ANY(SELECT id_jogador FROM personagem WHERE year(current_date()) - year(data_criacao) >= 1);
+
+-- NPC e suas quests
+SELECT npc.nome, npc.localizacao, quest.descricao, quest.recompensa
+FROM npc 
+JOIN quest 
+	ON quest.id_npc = npc.id
+ORDER BY npc.nome;
+
+-- Personagens com quest ja concluidas e os detalhes de suas quests
+SELECT personagem.nome, npc.nome AS npc, quest.descricao, quest.recompensa
+FROM personagem
+JOIN quests_personagem 
+	ON personagem.id = quests_personagem.id_personagem
+JOIN quest
+	ON quest.id = quests_personagem.id_quest
+JOIN npc
+	ON npc.id = quest.id_npc
+WHERE quests_personagem.completa = true;
