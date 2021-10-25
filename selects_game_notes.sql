@@ -26,12 +26,24 @@ JOIN item
 ORDER BY personagem.nome;
 
 -- Mostrar o registro de vendas de uma loja
-
+SELECT lojas.nome, item.nome AS item, itens_transacao.preco_item, itens_transacao.quantidade
+FROM lojas
+JOIN transacao
+	ON transacao.id_loja = lojas.id
+JOIN itens_transacao
+	ON itens_transacao.id_transacao = transacao.id
+JOIN item
+	ON item.id = itens_transacao.id_item
+ORDER BY lojas.nome;
 -- Mostrar um personagem e as missões que ele está encarregado de fazer
-
+SELECT personagem.nome, quest.descricao AS quest
+FROM personagem
+JOIN quests_personagem
+	ON quests_personagem.id_personagem = personagem.id
+JOIN quest
+	ON quest.id = quests_personagem.id_quest
+ORDER BY personagem.nome;
 -- Mostrar uma operaçao de compra completa, com loja, personagem, jogador, item, preço...alter
-
--- Pensar em outros selects
 
 -- select classe de cada personagem
 SELECT classe.nome, personagem.nome 
