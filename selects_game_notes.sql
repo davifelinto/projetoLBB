@@ -15,6 +15,11 @@ select * from transacao;
 select * from itens_transacao;
 
 -- Mostrar quais jogadores estão ativos e seus respectivos personagens
+SELECT jogador.nome, personagem.nome AS personagem
+FROM personagem
+JOIN jogador
+	ON jogador.id = personagem.id_jogador
+WHERE jogador.ativo = true;
 
 -- Mostrar personagens e os itens que ele possui
 SELECT personagem.nome, item.nome, item.preco,  item.raridade
@@ -35,6 +40,7 @@ JOIN itens_transacao
 JOIN item
 	ON item.id = itens_transacao.id_item
 ORDER BY lojas.nome;
+
 -- Mostrar um personagem e as missões que ele está encarregado de fazer
 SELECT personagem.nome, quest.descricao AS quest
 FROM personagem
@@ -43,7 +49,22 @@ JOIN quests_personagem
 JOIN quest
 	ON quest.id = quests_personagem.id_quest
 ORDER BY personagem.nome;
--- Mostrar uma operaçao de compra completa, com loja, personagem, jogador, item, preço...alter
+-- Mostrar uma operaçao de compra completa, com loja, personagem, jogador, item, preço...alter, ordenado por JOGADOR
+SELECT jogador.nome AS jogador, personagem.nome AS personagem, lojas.nome AS loja, transacao.dia_da_transacao, item.nome AS item, itens_transacao.quantidade, itens_transacao.valor_total
+FROM jogador
+JOIN personagem
+	ON personagem.id_jogador = jogador.id
+JOIN transacao 
+	ON transacao.id_personagem = personagem.id
+JOIN lojas 
+	ON lojas.id = transacao.id_loja
+JOIN itens_transacao
+	ON itens_transacao.id_transacao = transacao.id
+JOIN item
+	ON item.id = itens_transacao.id_item
+ORDER BY jogador.nome;
+
+
 
 -- select classe de cada personagem
 SELECT classe.nome, personagem.nome 
@@ -95,3 +116,36 @@ JOIN quest
 JOIN npc
 	ON npc.id = quest.id_npc
 WHERE quests_personagem.completa = true;
+
+-- Media de valores dos itens comuns, quando os itens forem custarem mais de 6 moedas
+SELECT AVG(preco) FROM item
+WHERE preco > 6; 
+
+-- Personagens com o preco total de seus itens maior que 100 ordenados de acordo com o preco total de seus itens
+SELECT personagem.nome, SUM(item.preco) * itens_personagem.quantidade AS precoTotalItens
+FROM personagem
+JOIN itens_personagem
+	ON itens_personagem.id_personagem = personagem.id
+JOIN item
+	ON item.id = itens_personagem.id_item
+GROUP BY personagem.nome
+HAVING precoTotalItens > 100
+ORDER BY precoTotalItens;
+
+-- Personagens que foram cadastrados em 2021 com o preco total de seus itens e o email de seus jogadores,
+-- selecionando os que tiverem o preco total de seus itens maior que 600 moedas
+-- ordenados de acordo com o preco total de seus itens
+SELECT personagem.nome, jogador.email, SUM(item.preco) * itens_personagem.quantidade AS precoTotalItens
+FROM personagem
+JOIN jogador
+	ON jogador.id = personagem.id_jogador
+JOIN itens_personagem
+	ON itens_personagem.id_personagem = personagem.id
+JOIN item
+	ON item.id = itens_personagem.id_item
+WHERE year(personagem.data_criacao) = 2021
+GROUP BY personagem.nome
+HAVING precoTotalItens > 600
+ORDER BY precoTotalItens;
+
+
