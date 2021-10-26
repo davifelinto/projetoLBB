@@ -144,4 +144,9 @@ GROUP BY personagem.nome
 HAVING precoTotalItens > 600
 ORDER BY precoTotalItens;
 
-
+-- nostra todas as lojas e todas as transações que elas fizeram ou não
+SELECT *
+FROM lojas
+LEFT JOIN transacao
+	ON lojas.id = transacao.id_loja
+ORDER BY lojas.id;
