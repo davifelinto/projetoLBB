@@ -79,16 +79,18 @@ ORDER BY personagem.nome;
 -- numero total de personagens em cada raca
 SELECT raca.nome, COUNT(personagem.nome) AS quantidade
 FROM raca 
-JOIN personagem
+LEFT JOIN personagem
 	ON personagem.id_raca = raca.id
-GROUP by raca.nome;
+GROUP by raca.nome
+ORDER BY quantidade DESC;
 
 -- numero total de personagens em cada classe
 SELECT classe.nome AS classe, COUNT(personagem.nome) AS quantidade
 FROM classe 
-JOIN personagem
+LEFT JOIN personagem
 	ON personagem.id_classe = classe.id
-GROUP by classe.nome;
+GROUP by classe.nome
+ORDER BY quantidade DESC;
 
 -- jogadores com mais de um ano de cadastro
 SELECT nome AS jogador, email
