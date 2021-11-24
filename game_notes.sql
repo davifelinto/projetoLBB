@@ -133,6 +133,9 @@ CREATE TABLE IF NOT EXISTS itens_transacao (
 		references item (preco)
 );
 
+CREATE INDEX idx_nomePersonagem
+ON personagem(nome);
+
 use game_notes;
 
 -- (id int not null, nome varchar(100) not null, idade int not null, email varchar(50))
