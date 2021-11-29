@@ -115,7 +115,6 @@ CREATE TABLE IF NOT EXISTS itens_transacao (
 	id_item int not null,
 	id_transacao int not null,
 	quantidade int,
-	valor_total NUMERIC(15, 2),
 	primary key (id_item, id_transacao),
 	foreign key (id_item)
 		references item (id),
@@ -138,6 +137,8 @@ INSERT INTO jogador VALUES
 (8, 'Beth' , 17, 'beth123@gmail.com', false),
 (9, 'Paulo' , 35, 'paulo123@gmail.com', false),
 (10, 'Marvin', 42, 'marv1n42@gmail.com', true);
+
+SELECT * FROM classe;
 
 -- (id int not null, nome varchar(100) not null, descricao varchar(200), habilidades varchar(200) not null)
 INSERT INTO raca VALUES
@@ -271,15 +272,27 @@ INSERT INTO transacao VALUES
 (9, 3, 8, '2021/6/8'),
 (10, 6, 10, '2021/6/25');
 
--- (id_item int not null, id_transacao int not null, preco_item double not null, quantidade int)
+CREATE OR REPLACE FUNCTION multiplicar(x numeric(15,2) , y int)
+RETURNS NUMERIC(15,2)
+SECURITY DEFINER
+CALLED ON NULL INPUT
+LANGUAGE SQL
+AS $$
+	SELECT x * y
+$$;
+
+
+-- (id_item int not null, id_transacao int not null, quantidade int)
 INSERT INTO itens_transacao VALUES
-(1, 1, 5.8, 10, preco_item*quantidade),
-(2, 2, 25.0, 3, preco_item*quantidade),
-(3, 3, 1500.5, 1, preco_item*quantidade),
-(4, 4, 550.5, 2, preco_item*quantidade),
-(5, 5, 50.0, 3, preco_item*quantidade),
-(6, 6, 100.5, 1, preco_item*quantidade),
-(7, 7, 25.0, 5, preco_item*quantidade),
-(8, 8, 1.0, 6, preco_item*quantidade),
-(9, 9, 0.5, 8, preco_item*quantidade),
-(10, 10, 100.5, 1, preco_item*quantidade);
+(1, 1, 10),
+(2, 2, 3),
+(3, 3, 1),
+(4, 4, 2),
+(5, 5, 3),
+(6, 6, 1),
+(7, 7, 5),
+(8, 8, 6),
+(9, 9, 8),
+(10, 10, 1);
+
+
