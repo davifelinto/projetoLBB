@@ -534,3 +534,21 @@ WHERE nome = 'Sentinela';
 SELECT * FROM classe;
 ROLLBACK;
 
+								-- GRANT E REVOKE --
+
+CREATE ROLE mestre WITH PASSWORD 'oDonoDoMundo123';
+GRANT ALL PRIVILEGES
+ON DATABASE game_notes
+TO mestre;
+
+CREATE ROLE player WITH PASSWORD 'player123';
+GRANT select, update(nivel)
+on personagem
+TO player;
+
+REVOKE select, update(nivel)
+on personagem
+FROM player;
+
+DROP ROLE player;
+
