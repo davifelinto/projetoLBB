@@ -1,5 +1,9 @@
 								-- CREATES --
 
+-- DROP DATABASE IF EXISTS game_notes; -- 
+-- CREATE DATABASE game_notes;
+-- USE DATABASE game_notes = \c game_notes(apenas em psql)
+
 CREATE TABLE IF NOT EXISTS jogador (
 	id int not null,
 	nome varchar(50) not null,
@@ -121,12 +125,6 @@ CREATE TABLE IF NOT EXISTS itens_transacao (
 		references transacao (id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_precoItem
-ON item (preco);
-
-CREATE INDEX IF NOT EXISTS idx_nomePersonagem
-ON personagem(nome);
-
 CREATE OR REPLACE FUNCTION multiplicar(x numeric(15,2) , y int)
 RETURNS NUMERIC(15,2)
 SECURITY DEFINER
@@ -136,6 +134,37 @@ AS $$
 	SELECT x * y
 $$;
 
+								-- INDEXES --
+								
+CREATE INDEX IF NOT EXISTS idx_precoItem
+ON item (preco);
+
+CREATE INDEX IF NOT EXISTS idx_nomePersonagem
+ON personagem(nome);
+
+								-- UPDATES --
+								
+ALTER TABLE jogador RENAME TO jogadores;
+ALTER TABLE jogadores RENAME TO jogador;
+
+ALTER TABLE jogador ADD sexo boolean;
+ALTER TABLE jogador DROP COLUMN sexo;
+
+
+								-- DELETE --
+								
+DROP TABLE itens_transacao;
+
+CREATE TABLE IF NOT EXISTS itens_transacao (
+	id_item int not null,
+	id_transacao int not null,
+	quantidade int,
+	primary key (id_item, id_transacao),
+	foreign key (id_item)
+		references item (id),
+	foreign key (id_transacao)
+		references transacao (id)
+);
 								-- INSERTS --
 
 -- (id int not null, nome varchar(100) not null, idade int not null, email varchar(50))
@@ -420,3 +449,32 @@ FROM lojas
 LEFT JOIN transacao
 	ON lojas.id = transacao.id_loja
 ORDER BY lojas.id; 
+
+								-- DANDO ERRO NO GROUP BY/HAVING --
+
+-- Personagens com o preco total de seus itens maior que 100 ordenados de acordo com o preco total de seus itens
+SELECT personagem.nome AS personagem, SUM(item.preco) * itens_personagem.quantidade AS precoTotalItens
+FROM personagem
+JOIN itens_personagem
+	ON itens_personagem.id_personagem = personagem.id
+JOIN item
+	ON item.id = itens_personagem.id_item
+GROUP BY personagem.nome
+HAVING precoTotalItens > 100.0
+ORDER BY precoTotalItens;
+
+-- Personagens que foram cadastrados em 2021 com o preco total de seus itens e o email de seus jogadores,
+-- selecionando os que tiverem o preco total de seus itens maior que 600 moedas
+-- ordenados de acordo com o preco total de seus itens
+SELECT personagem.nome AS personagem, jogador.email AS email_Jogador, SUM(item.preco) * itens_personagem.quantidade AS precoTotalItens
+FROM personagem
+JOIN jogador
+	ON jogador.id = personagem.id_jogador
+JOIN itens_personagem
+	ON itens_personagem.id_personagem = personagem.id
+JOIN item
+	ON item.id = itens_personagem.id_item
+WHERE year(personagem.data_criacao) = 2021
+GROUP BY personagem.nome
+HAVING precoTotalItens > 600
+ORDER BY precoTotalItens;
