@@ -330,18 +330,18 @@ INSERT INTO itens_transacao VALUES
 								-- SELECTS --
 
 -- Teste pra ver se a db ta funcionando
-select * from jogador;
-select * from raca;
-select * from classe;
-select * from item;
-select * from npc;
-select * from quest;
-select * from personagem;
-select * from itens_personagem;
-select * from quests_personagem;
-select * from lojas;
-select * from transacao;
-select * from itens_transacao;
+SELECT * FROM jogador;
+SELECT * FROM raca;
+SELECT * FROM classe;
+SELECT * FROM item;
+SELECT * FROM npc;
+SELECT * FROM quest;
+SELECT * FROM personagem;
+SELECT * FROM itens_personagem;
+SELECT * FROM quests_personagem;
+SELECT * FROM lojas;
+SELECT * FROM transacao;
+SELECT * FROM itens_transacao;
 
 -- Mostrar quais jogadores estão ativos e seus respectivos personagens
 SELECT jogador.nome AS jogador, personagem.nome AS personagem
@@ -382,7 +382,7 @@ JOIN quest
 ORDER BY personagem.nome;
 
 -- Mostrar uma operaçao de compra completa, com loja, personagem, jogador, item, preço...alter, ordenado por JOGADOR
-SELECT jogador.nome AS jogador, personagem.nome AS personagem, lojas.nome AS loja, transacao.dia_da_transacao, item.nome AS item, itens_transacao.quantidade, item.preco, itens_transacao.quantidade * item.preco as valor_total
+SELECT jogador.nome AS jogador, personagem.nome AS personagem, lojas.nome AS loja, transacao.dia_da_transacao, item.nome AS item, itens_transacao.quantidade, item.preco, itens_transacao.quantidade * item.preco AS valor_total
 FROM jogador
 JOIN personagem
 	ON personagem.id_jogador = jogador.id
@@ -472,7 +472,65 @@ JOIN itens_personagem
 	ON itens_personagem.id_personagem = personagem.id
 JOIN item
 	ON item.id = itens_personagem.id_item
-WHERE EXTRACT (year from personagem.data_criacao) = 2021
+WHERE EXTRACT (YEAR FROM personagem.data_criacao) = 2021
 GROUP BY personagem.nome, jogador.email, itens_personagem.quantidade
 HAVING SUM(item.preco) * itens_personagem.quantidade > 600
 ORDER BY precoTotalItens;
+
+								-- VIEWS --
+
+CREATE VIEW registroVendas AS
+SELECT lojas.nome AS loja, item.nome AS item, itens_transacao.quantidade * item.preco AS preço , itens_transacao.quantidade, personagem.nome AS comprador
+FROM lojas
+JOIN transacao
+	ON transacao.id_loja = lojas.id
+JOIN itens_transacao
+	ON itens_transacao.id_transacao = transacao.id
+JOIN item
+	ON item.id = itens_transacao.id_item
+JOIN personagem
+	ON transacao.id_personagem = personagem.id
+ORDER BY lojas.nome;
+
+-- view personagnes e quests completadas, com o email de cada jogador
+CREATE VIEW questsCompletas AS
+SELECT jogador.email AS email, personagem.nome AS personagem, npc.nome AS npc, quest.descricao AS missao_completa, quest.recompensa
+FROM personagem
+JOIN jogador 
+	ON personagem.id_jogador = jogador.id
+JOIN quests_personagem 
+	ON personagem.id = quests_personagem.id_personagem
+JOIN quest
+	ON quest.id = quests_personagem.id_quest
+JOIN npc
+	ON npc.id = quest.id_npc
+WHERE quests_personagem.completa = true
+UNION
+SELECT jogador.email AS email, personagem.nome AS personagem, npc.nome AS npc, quest.descricao AS missao_completa, quest.recompensa
+FROM personagem
+JOIN jogador 
+	ON personagem.id_jogador = jogador.id
+JOIN quests_personagem 
+	ON personagem.id = quests_personagem.id_personagem
+JOIN quest
+	ON quest.id = quests_personagem.id_quest
+JOIN npc
+	ON npc.id = quest.id_npc
+WHERE quests_personagem.completa = false;
+
+								  -- COMMIT E ROLLBACK --
+								-- UPDATE DELETE DE ITENS --
+
+BEGIN transaction;
+UPDATE  classe
+SET nome = 'Sentinela'
+WHERE nome = 'Patrulheiro';
+SELECT * FROM classe;
+COMMIT;
+
+BEGIN transaction;
+DELETE FROM  classe
+WHERE nome = 'Sentinela';
+SELECT * FROM classe;
+ROLLBACK;
+
