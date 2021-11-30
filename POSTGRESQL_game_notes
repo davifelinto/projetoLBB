@@ -541,6 +541,10 @@ REVOKE select, update(nivel)
 on personagem
 FROM player;
 
+GRANT insert 
+ON transacao
+to player;
+
 DROP ROLE player;
 
 								-- FUNCTION/STORED PROCEDURE --
@@ -553,3 +557,35 @@ LANGUAGE SQL
 AS $$
 	SELECT x * y
 $$;
+
+CREATE OR REPLACE FUNCTION criar_jogador(id int, nome VARCHAR(50), idade INT, email VARCHAR(50))
+RETURNS INT
+LANGUAGE PLPGSQL
+AS $$
+DECLARE check_email int;
+BEGIN
+	IF id IS NULL OR nome IS NULL or idade IS NULL or email IS NULL THEN
+		RETURN 0;
+	END IF;
+	SELECT INTO check_email jogador.id
+	FROM jogador
+	WHERE jogador.email = email;
+	IF check_email IS null THEN
+		INSERT INTO jogador VALUES(id, nome, idade, email, true);
+		RETURN 1;
+	END IF;
+	RETURN 0;
+END;$$
+
+-- SELECT USANDO A FUNCTION
+
+SELECT criar_jogador(11, 'Joao Lucas', 22, 'marv1n42@gmail.com');
+SELECT personagem.nome AS personagem, multiplicar(SUM(item.preco), itens_personagem.quantidade) AS precoTotalItens
+FROM personagem
+JOIN itens_personagem
+	ON itens_personagem.id_personagem = personagem.id
+JOIN item
+	ON item.id = itens_personagem.id_item
+GROUP BY personagem.nome, itens_personagem.quantidade
+HAVING SUM(item.preco) * itens_personagem.quantidade > 100.0
+ORDER BY precoTotalItens;
