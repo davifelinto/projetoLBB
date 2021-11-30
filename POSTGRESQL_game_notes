@@ -125,15 +125,6 @@ CREATE TABLE IF NOT EXISTS itens_transacao (
 		references transacao (id)
 );
 
-CREATE OR REPLACE FUNCTION multiplicar(x numeric(15,2) , y int)
-RETURNS NUMERIC(15,2)
-SECURITY DEFINER
-CALLED ON NULL INPUT
-LANGUAGE SQL
-AS $$
-	SELECT x * y
-$$;
-
 								-- INDEXES --
 								
 CREATE INDEX IF NOT EXISTS idx_precoItem
@@ -552,3 +543,13 @@ FROM player;
 
 DROP ROLE player;
 
+								-- FUNCTION/STORED PROCEDURE --
+								
+CREATE OR REPLACE FUNCTION multiplicar(x numeric(15,2) , y int)
+RETURNS NUMERIC(15,2)
+SECURITY DEFINER
+CALLED ON NULL INPUT
+LANGUAGE SQL
+AS $$
+	SELECT x * y
+$$;
