@@ -450,8 +450,6 @@ LEFT JOIN transacao
 	ON lojas.id = transacao.id_loja
 ORDER BY lojas.id; 
 
-								-- DANDO ERRO NO GROUP BY/HAVING --
-
 -- Personagens com o preco total de seus itens maior que 100 ordenados de acordo com o preco total de seus itens
 SELECT personagem.nome AS personagem, SUM(item.preco) * itens_personagem.quantidade AS precoTotalItens
 FROM personagem
@@ -459,8 +457,8 @@ JOIN itens_personagem
 	ON itens_personagem.id_personagem = personagem.id
 JOIN item
 	ON item.id = itens_personagem.id_item
-GROUP BY personagem.nome
-HAVING precoTotalItens > 100.0
+GROUP BY personagem.nome, itens_personagem.quantidade
+HAVING SUM(item.preco) * itens_personagem.quantidade > 100.0
 ORDER BY precoTotalItens;
 
 -- Personagens que foram cadastrados em 2021 com o preco total de seus itens e o email de seus jogadores,
@@ -474,7 +472,7 @@ JOIN itens_personagem
 	ON itens_personagem.id_personagem = personagem.id
 JOIN item
 	ON item.id = itens_personagem.id_item
-WHERE year(personagem.data_criacao) = 2021
-GROUP BY personagem.nome
-HAVING precoTotalItens > 600
+WHERE EXTRACT (year from personagem.data_criacao) = 2021
+GROUP BY personagem.nome, jogador.email, itens_personagem.quantidade
+HAVING SUM(item.preco) * itens_personagem.quantidade > 600
 ORDER BY precoTotalItens;
