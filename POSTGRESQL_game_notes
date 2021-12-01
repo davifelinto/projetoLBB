@@ -589,3 +589,34 @@ JOIN item
 GROUP BY personagem.nome, itens_personagem.quantidade
 HAVING SUM(item.preco) * itens_personagem.quantidade > 100.0
 ORDER BY precoTotalItens;
+
+								-- TRIGGER TESTE --
+
+-- Ta dentro de uma transaction pq não ta dando mto certo, e assim é mais facil de voltar depois de rodar o codigo
+
+BEGIN TRANSACTION;
+CREATE OR REPLACE FUNCTION atualiza_inventario(integer) RETURNS TRIGGER AS $updateItens$
+    BEGIN
+            INSERT INTO itens_personagem VALUES (transacao.id_personagem, itens_transacao.id_item, itens_transacao.quantidade);
+            RETURN NEW;
+    END;
+$updateItens$ LANGUAGE plpgsql;
+								
+CREATE TRIGGER updateItens
+AFTER INSERT ON itens_transacao
+    EXECUTE PROCEDURE atualiza_inventario(id_personagem);
+	
+SELECT * FROM itens_personagem;
+SELECT * FROM transacao;
+SELECT * FROM itens_transacao;
+
+-- (id int not null, id_personagem int not null, id_loja int not null, data_transacao date)
+INSERT INTO transacao VALUES
+(11, 5, 1, CURRENT_TIMESTAMP);
+
+
+-- (id_item int not null, id_transacao int not null, quantidade int)
+INSERT INTO itens_transacao VALUES
+(1, 11, 5);
+ROLLBACK;
+COMMIT;
