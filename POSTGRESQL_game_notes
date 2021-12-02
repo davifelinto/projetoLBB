@@ -525,6 +525,7 @@ WHERE nome = 'Sentinela';
 SELECT * FROM classe;
 ROLLBACK;
 
+
 								-- GRANT E REVOKE --
 
 CREATE ROLE mestre WITH PASSWORD 'oDonoDoMundo123';
@@ -558,20 +559,20 @@ AS $$
 	SELECT x * y
 $$;
 
-CREATE OR REPLACE FUNCTION criar_jogador(id int, nome VARCHAR(50), idade INT, email VARCHAR(50))
+CREATE OR REPLACE FUNCTION criar_jogador(id int, nome VARCHAR(50), idade INT, email_jogador VARCHAR(50))
 RETURNS INT
 LANGUAGE PLPGSQL
 AS $$
 DECLARE check_email int;
 BEGIN
-	IF id IS NULL OR nome IS NULL or idade IS NULL or email IS NULL THEN
+	IF id IS NULL OR nome IS NULL or idade IS NULL or email_jogador IS NULL THEN
 		RETURN 0;
 	END IF;
-	SELECT INTO check_email jogador.id
+	SELECT INTO check_email jogador.idade
 	FROM jogador
-	WHERE jogador.email = email;
+	WHERE jogador.email = email_jogador;
 	IF check_email IS null THEN
-		INSERT INTO jogador VALUES(id, nome, idade, email, true);
+		INSERT INTO jogador VALUES(id, nome, idade, email_jogador, true);
 		RETURN 1;
 	END IF;
 	RETURN 0;
@@ -579,7 +580,10 @@ END;$$
 
 -- SELECT USANDO A FUNCTION
 
-SELECT criar_jogador(11, 'Joao Lucas', 22, 'marv1n42@gmail.com');
+SELECT criar_jogador(11, 'Joao Lucas', 22, 'marv1n42@gmail.com'); -- 0 seguinifica que o jogador nao foi criado
+SELECT criar_jogador(11, 'Joao Lucas', 22, 'mn42@gmail.com'); -- 1 significa que o jogador foi criado
+
+
 SELECT personagem.nome AS personagem, multiplicar(SUM(item.preco), itens_personagem.quantidade) AS precoTotalItens
 FROM personagem
 JOIN itens_personagem
@@ -590,22 +594,31 @@ GROUP BY personagem.nome, itens_personagem.quantidade
 HAVING SUM(item.preco) * itens_personagem.quantidade > 100.0
 ORDER BY precoTotalItens;
 
-								-- TRIGGER TESTE --
+								-- TRIGGER --
 
--- Ta dentro de uma transaction pq não ta dando mto certo, e assim é mais facil de voltar depois de rodar o codigo
 
 BEGIN TRANSACTION;
-CREATE OR REPLACE FUNCTION atualiza_inventario(integer) RETURNS TRIGGER AS $updateItens$
+CREATE OR REPLACE FUNCTION atualiza_inventario() RETURNS TRIGGER AS $updateItens$
+DECLARE personagem int;
     BEGIN
-            INSERT INTO itens_personagem VALUES (transacao.id_personagem, itens_transacao.id_item, itens_transacao.quantidade);
+			SELECT INTO personagem id_personagem
+			FROM transacao
+			JOIN itens_transacao
+				ON transacao.id = new.id_transacao
+			WHERE transacao.id = id_transacao;
+            INSERT INTO itens_personagem VALUES (personagem, new.id_item, new.quantidade);
             RETURN NEW;
     END;
 $updateItens$ LANGUAGE plpgsql;
 								
 CREATE TRIGGER updateItens
 AFTER INSERT ON itens_transacao
-    EXECUTE PROCEDURE atualiza_inventario(id_personagem);
-	
+	FOR EACH ROW
+    EXECUTE PROCEDURE atualiza_inventario();
+
+INSERT INTO transacao VALUES(12, 2, 1, '2021/2/28');
+INSERT INTO itens_transacao VALUES(1, 12, 5);
+COMMIT;
 SELECT * FROM itens_personagem;
 SELECT * FROM transacao;
 SELECT * FROM itens_transacao;
