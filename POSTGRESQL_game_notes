@@ -546,6 +546,10 @@ GRANT insert
 ON transacao
 to player;
 
+REVOKE insert 
+ON transacao
+FROM player;
+
 DROP ROLE player;
 
 								-- FUNCTION/STORED PROCEDURE --
@@ -616,13 +620,6 @@ AFTER INSERT ON itens_transacao
 	FOR EACH ROW
     EXECUTE PROCEDURE atualiza_inventario();
 
-INSERT INTO transacao VALUES(12, 2, 1, '2021/2/28');
-INSERT INTO itens_transacao VALUES(1, 12, 5);
-COMMIT;
-SELECT * FROM itens_personagem;
-SELECT * FROM transacao;
-SELECT * FROM itens_transacao;
-
 -- (id int not null, id_personagem int not null, id_loja int not null, data_transacao date)
 INSERT INTO transacao VALUES
 (11, 5, 1, CURRENT_TIMESTAMP);
@@ -631,5 +628,8 @@ INSERT INTO transacao VALUES
 -- (id_item int not null, id_transacao int not null, quantidade int)
 INSERT INTO itens_transacao VALUES
 (1, 11, 5);
-ROLLBACK;
 COMMIT;
+
+SELECT * FROM itens_personagem;
+SELECT * FROM transacao;
+SELECT * FROM itens_transacao;
